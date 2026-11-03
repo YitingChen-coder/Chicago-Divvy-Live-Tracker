@@ -24,7 +24,7 @@ export function CityStats({ statuses }: { statuses: Record<string, StationStatus
     { label: "stations full", value: t.full, wide: true },
   ];
   return (
-    <dl className="mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-stone-200 bg-stone-200 sm:grid-cols-5">
+    <dl className="mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-stone-200 bg-stone-200 shadow-sm sm:grid-cols-5">
       {items.map((i) => (
         <div key={i.label} className={`flex-col-reverse bg-white px-3 py-2.5 sm:px-4 sm:py-3 ${i.wide ? "hidden sm:flex" : "flex"}`}>
           <dt className="text-xs text-stone-500">{i.label}</dt>

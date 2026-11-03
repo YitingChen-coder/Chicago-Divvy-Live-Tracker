@@ -39,7 +39,7 @@ export function StationCard({
   return (
     <article
       key={change?.key}
-      className={`relative rounded-2xl border bg-white p-5 shadow-sm transition ${
+      className={`relative rounded-2xl border bg-white p-5 shadow-sm transition hover:shadow-md ${
         change ? "flash border-sky-400" : "border-stone-200"
       } ${dimmed ? "opacity-70" : ""}`}
     >

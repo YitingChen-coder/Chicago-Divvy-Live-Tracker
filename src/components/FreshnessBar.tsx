@@ -53,7 +53,7 @@ export function FreshnessBar({
 
   return (
     <div
-      className={`sticky top-0 z-10 mt-4 flex flex-col gap-1 rounded-xl border px-4 py-3 shadow-sm backdrop-blur sm:flex-row sm:items-center sm:gap-3 ${s.box}`}
+      className={`sticky top-[53px] z-[1050] mt-4 flex flex-col gap-1 rounded-xl border px-4 py-3 shadow-sm backdrop-blur sm:flex-row sm:items-center sm:gap-3 ${s.box}`}
     >
       {/* Only the state is announced to screen readers; the ticking detail would be noise. */}
       <div className="flex items-center gap-2" role="status" aria-live="polite">

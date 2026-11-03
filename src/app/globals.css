@@ -6,9 +6,19 @@
 }
 
 body {
-  background: #fafaf9; /* stone-50 */
+  /* A faint sky wash at the top, fading to stone-50. */
+  background:
+    radial-gradient(1200px 500px at 50% -200px, rgb(224 242 254 / 0.9), transparent 70%),
+    #fafaf9;
   color: #1c1917; /* stone-900 */
 }
+
+/* The example "+1 bike" chip on the landing page pulses gently. */
+@keyframes chip {
+  0%, 70%, 100% { transform: scale(1); }
+  80% { transform: scale(1.12); }
+}
+.flash-chip { animation: chip 3s ease-in-out infinite; display: inline-block; }
 
 /* A station card glows briefly when Realtime pushes a change. */
 @keyframes flash {
@@ -25,7 +35,7 @@ body {
 .live-dot { animation: live 2s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .flash, .live-dot { animation: none; }
+  .flash, .live-dot, .flash-chip { animation: none; }
 }
 
 /* Alerts slide in from the right. */
