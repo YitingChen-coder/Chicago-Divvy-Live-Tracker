@@ -1,5 +1,5 @@
 import { formatAgo } from "@/lib/freshness";
-import { directionsUrl, formatDistance, walkMinutes } from "@/lib/geo";
+import { directionsUrl, distanceLabel } from "@/lib/geo";
 import type { LiveChange, Station, StationStatus } from "@/lib/types";
 
 export function StationCard({
@@ -72,7 +72,7 @@ export function StationCard({
           <footer className="mt-4 flex items-center gap-2 border-t border-stone-100 pt-3">
             {distanceM != null && (
               <span className="mr-auto text-xs text-stone-500">
-                {formatDistance(distanceM)} · ~{walkMinutes(distanceM)} min walk
+                {distanceLabel(distanceM)}
               </span>
             )}
             <button

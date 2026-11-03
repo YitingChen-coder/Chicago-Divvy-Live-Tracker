@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { directionsUrl, distanceM, formatDistance, walkMinutes, type GeoState, type LatLon } from "@/lib/geo";
+import { directionsUrl, distanceLabel, distanceM, type GeoState, type LatLon } from "@/lib/geo";
 import { AVAILABILITY_STYLE } from "@/lib/mapStyle";
 import { availability, type Station, type StationStatus } from "@/lib/types";
 
@@ -142,7 +142,7 @@ export function NearbyView({
                           <span className="truncate">{s.name}</span>
                         </p>
                         <p className="mt-0.5 text-sm text-stone-500">
-                          {formatDistance(d)} · ~{walkMinutes(d)} min walk ·{" "}
+                          {distanceLabel(d)} ·{" "}
                           <span className="text-stone-800">
                             {st.bikes_available - st.ebikes_available} classic, {st.ebikes_available} e-bikes, {st.docks_available} docks
                           </span>

@@ -17,6 +17,12 @@ export function distanceM(a: LatLon, b: LatLon): number {
 /** Walking minutes, assuming city blocks add ~30% to the straight line at 80 m/min. */
 export const walkMinutes = (meters: number) => Math.max(1, Math.round((meters * 1.3) / 80));
 
+/** "0.4 mi · ~9 min walk", or just the distance when it's too far to walk. */
+export function distanceLabel(meters: number): string {
+  const min = walkMinutes(meters);
+  return min <= 45 ? `${formatDistance(meters)} · ~${min} min walk` : `${formatDistance(meters)} away`;
+}
+
 export function formatDistance(meters: number): string {
   const miles = meters / 1609.34;
   return miles < 0.1 ? `${Math.round(meters * 3.281)} ft` : `${miles.toFixed(miles < 10 ? 1 : 0)} mi`;

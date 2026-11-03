@@ -4,7 +4,7 @@
 import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo, useRef } from "react";
 import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
-import { CHICAGO, directionsUrl, distanceM, formatDistance, walkMinutes, type LatLon } from "@/lib/geo";
+import { CHICAGO, directionsUrl, distanceLabel, distanceM, type LatLon } from "@/lib/geo";
 import { AVAILABILITY_STYLE, type MapFilter } from "@/lib/mapStyle";
 import { availability, type Station, type StationStatus } from "@/lib/types";
 
@@ -115,7 +115,7 @@ export default function StationMap({
                 </p>
                 {dist != null && (
                   <p className="mt-1 text-xs text-stone-500">
-                    {formatDistance(dist)} · ~{walkMinutes(dist)} min walk
+                    {distanceLabel(dist)}
                   </p>
                 )}
                 <div className="mt-2 flex gap-2">
