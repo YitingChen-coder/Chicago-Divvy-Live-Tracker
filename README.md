@@ -47,7 +47,7 @@ Divvy GBFS feed ──► Edge Function divvy-sync ──► Postgres ──► 
 ## Run it yourself
 
 1. Copy `.env.example` to `.env.local` and fill in the Clerk and Supabase keys.
-2. Apply `supabase/migrations/*.sql`, deploy `supabase/functions/divvy-sync`, set its `WORKER_SECRET`, and create the Vault secrets `project_url` and `worker_secret`.
+2. Apply `supabase/migrations/*.sql`, deploy `supabase/functions/divvy-sync`, and create the Vault secrets `project_url` and `worker_secret`.
 3. In Supabase → Authentication → Third-party auth, add Clerk. In Clerk, turn on the Supabase integration.
 4. `npm install && npm run dev`
 

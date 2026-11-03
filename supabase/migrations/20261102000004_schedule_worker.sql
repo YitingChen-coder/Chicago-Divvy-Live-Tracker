@@ -6,7 +6,7 @@
 -- Needs two Vault secrets, created once outside of git:
 --   select vault.create_secret('https://<project-ref>.supabase.co', 'project_url');
 --   select vault.create_secret('<random string>', 'worker_secret');
--- and the same worker_secret set as the function's WORKER_SECRET env var.
+-- The worker checks the header with public.check_worker_secret().
 
 create extension if not exists pg_cron;
 create extension if not exists pg_net;

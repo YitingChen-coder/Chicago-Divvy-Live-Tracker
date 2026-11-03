@@ -68,14 +68,19 @@ async function syncStationsIfNeeded(db: SupabaseClient, statusIds: string[]): Pr
 }
 
 Deno.serve(async (req) => {
-  const secret = Deno.env.get("WORKER_SECRET");
-  if (!secret || req.headers.get("x-worker-secret") !== secret) {
-    return new Response("unauthorized", { status: 401 });
-  }
-
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
     auth: { persistSession: false },
   });
+
+  // Only Cron knows the worker secret (kept in Supabase Vault). The database checks it,
+  // so the secret is never in the code or in the function's settings.
+  const { data: allowed, error: authError } = await db.rpc("check_worker_secret", {
+    candidate: req.headers.get("x-worker-secret") ?? "",
+  });
+  if (authError || allowed !== true) {
+    console.warn(`rejected call: ${authError?.message ?? "wrong or missing x-worker-secret"}`);
+    return new Response("unauthorized", { status: 401 });
+  }
   const startedAt = new Date();
   const run: Record<string, unknown> = { started_at: startedAt.toISOString() };
 
