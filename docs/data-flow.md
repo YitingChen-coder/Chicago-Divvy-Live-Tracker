@@ -16,6 +16,7 @@ flowchart LR
             ST[(stations)]
             STS[(station_status)]
             F[(follows<br/>RLS: own rows only)]
+            H[(station_history<br/>added later, for trends)]
             R[(worker_runs)]
         end
         RT["Realtime<br/>(postgres_changes)"]
@@ -32,6 +33,7 @@ flowchart LR
     W -- "upsert only stations whose<br/>bikes / e-bikes / docks / renting changed" --> STS
     W -. "upsert new / changed stations" .-> ST
     W -- "insert 1 row per run:<br/>ok, rows_changed, error" --> R
+    W -. "same changed rows" .-> H
     STS -- "UPDATE / INSERT events" --> RT
     R -- "INSERT events" --> RT
     RT -- "WebSocket push, only for<br/>the stations this person follows" --> P
