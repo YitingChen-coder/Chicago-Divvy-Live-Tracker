@@ -4,7 +4,7 @@ A real-time Chicago Divvy bike availability tracker with personalized station fa
 
 Sign in, follow the stations you care about, and watch bikes, e-bikes and open docks change without refreshing.
 
-- **Live app:** _Vercel URL_
+- **Live app:** https://chicago-divvy-live-tracker.vercel.app
 - **Data-flow chart:** [docs/data-flow.md](docs/data-flow.md)
 
 ## How it works
