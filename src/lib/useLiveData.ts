@@ -4,9 +4,9 @@ import type { RealtimePostgresChangesPayload, SupabaseClient } from "@supabase/s
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { WorkerRun } from "./freshness";
 import { useSupabase } from "./supabase";
-import type { LiveChange, Station, StationStatus } from "./types";
+import type { HistoryPoint, LiveChange, Station, StationStatus } from "./types";
 
-const RUN_COLUMNS = "id,finished_at,ok,rows_changed,stations_seen,source_updated_at,error";
+const RUN_COLUMNS = "id,finished_at,ok,rows_changed,stations_seen,source_updated_at,error,duration_ms";
 const STATUS_COLUMNS = "station_id,bikes_available,ebikes_available,docks_available,is_renting,last_reported,changed_at";
 const PAGE = 1000; // Supabase returns at most 1000 rows per request
 
@@ -30,6 +30,16 @@ async function loadLatestRuns(db: SupabaseClient) {
   return { latest: latest.data as WorkerRun | null, latestOk: latestOk.data as WorkerRun | null };
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+const RUN_HISTORY = 60; // last 30 minutes of runs, for the System view
+type HistoryRow = { station_id: string; bikes_available: number; ebikes_available: number; docks_available: number; recorded_at: string };
+const toPoint = (at: string, r: { bikes_available: number; ebikes_available: number; docks_available: number }): HistoryPoint => ({
+  t: Date.parse(at),
+  bikes: r.bikes_available,
+  ebikes: r.ebikes_available,
+  docks: r.docks_available,
+});
+
 const message = (e: unknown) => (e instanceof Error ? e.message : String((e as { message?: string })?.message ?? e));
 
 /**
@@ -47,6 +57,9 @@ export function useLiveData() {
   const [latestRun, setLatestRun] = useState<WorkerRun | null | undefined>(undefined);
   const [latestOkRun, setLatestOkRun] = useState<WorkerRun | null | undefined>(undefined);
   const [changes, setChanges] = useState<LiveChange[]>([]);
+  const [history, setHistory] = useState<Record<string, HistoryPoint[]>>({});
+  const [runs, setRuns] = useState<WorkerRun[] | null>(null);
+  const [lastPushAt, setLastPushAt] = useState<number | null>(null);
   const [socket, setSocket] = useState("connecting");
   const [error, setError] = useState<string | null>(null);
 
@@ -84,7 +97,18 @@ export function useLiveData() {
     for (const r of rows) next[r.station_id] = r;
     statusesRef.current = next; // so a second merge in the same tick compares against this one
     setStatuses(next);
-    if (seen.length) setChanges((c) => [...seen, ...c].slice(0, 12));
+    if (seen.length) {
+      setChanges((c) => [...seen, ...c].slice(0, 12));
+      // Extend the 24-hour trend of each followed station that changed.
+      setHistory((h) => {
+        const next = { ...h };
+        for (const c of seen) {
+          const r = rows.find((x) => x.station_id === c.station_id)!;
+          next[c.station_id] = [...(next[c.station_id] ?? []), toPoint(r.changed_at, r)];
+        }
+        return next;
+      });
+    }
   }, []);
 
   /** Only the rows that changed since the newest one we've seen. */
@@ -105,13 +129,16 @@ export function useLiveData() {
     if (!db) return;
     (async () => {
       try {
-        const [all, status, myFollows, runs] = await Promise.all([
+        const [all, status, myFollows, runs, recentRuns] = await Promise.all([
           selectAll<Station>((a, b) => db.from("stations").select("station_id,name,lat,lon,capacity").order("name").range(a, b)),
           selectAll<StationStatus>((a, b) => db.from("station_status").select(STATUS_COLUMNS).order("station_id").range(a, b)),
           db.from("follows").select("station_id").order("created_at"),
           loadLatestRuns(db),
+          db.from("worker_runs").select(RUN_COLUMNS).order("finished_at", { ascending: false }).limit(RUN_HISTORY),
         ]);
         if (myFollows.error) throw myFollows.error;
+        if (recentRuns.error) throw recentRuns.error;
+        setRuns(recentRuns.data as WorkerRun[]);
         mergeStatuses(status);
         setStations(new Map(all.map((s) => [s.station_id, s])));
         setFollows(myFollows.data.map((f) => f.station_id));
@@ -123,8 +150,31 @@ export function useLiveData() {
     })();
   }, [db, mergeStatuses]);
 
-  // 2. Realtime for the stations I follow.
+  // 2. Realtime for the stations I follow, plus their last 24 hours for the trend lines.
   const followKey = follows?.join(",") ?? "";
+  useEffect(() => {
+    if (!db || !followKey) return;
+    let cancelled = false;
+    (async () => {
+      const since = new Date(Date.now() - DAY_MS).toISOString();
+      try {
+        const rows = await selectAll<HistoryRow>((a, b) =>
+          db.from("station_history").select("station_id,bikes_available,ebikes_available,docks_available,recorded_at")
+            .in("station_id", followKey.split(",")).gte("recorded_at", since).order("recorded_at").range(a, b),
+        );
+        if (cancelled) return;
+        const byStation: Record<string, HistoryPoint[]> = {};
+        for (const r of rows) (byStation[r.station_id] ??= []).push(toPoint(r.recorded_at, r));
+        setHistory(byStation);
+      } catch (e) {
+        if (!cancelled) setError(message(e));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [db, followKey]);
+
   useEffect(() => {
     if (!db || !followKey) return;
     const channel = db
@@ -153,6 +203,8 @@ export function useLiveData() {
       .channel("worker-runs")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "worker_runs" }, (payload) => {
         const run = payload.new as WorkerRun;
+        setLastPushAt(Date.now());
+        setRuns((r) => (r ? [run, ...r].slice(0, RUN_HISTORY) : r));
         setLatestRun(run);
         if (run.ok) setLatestOkRun(run);
         if (run.ok && run.rows_changed) catchUp();
@@ -213,6 +265,9 @@ export function useLiveData() {
     latestRun,
     latestOkRun,
     changes,
+    history,
+    runs,
+    lastPushAt,
     socket,
     error,
     clearError: () => setError(null),

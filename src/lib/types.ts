@@ -16,6 +16,9 @@ export type StationStatus = {
   changed_at: string;
 };
 
+/** One point of a station's history: its counts from this moment until the next point. */
+export type HistoryPoint = { t: number; bikes: number; ebikes: number; docks: number };
+
 /** A change pushed by Realtime, kept for the activity list and the "+1 bike" chip. */
 export type LiveChange = {
   key: string;

@@ -1,6 +1,7 @@
 import { formatAgo } from "@/lib/freshness";
 import { directionsUrl, distanceLabel } from "@/lib/geo";
-import type { LiveChange, Station, StationStatus } from "@/lib/types";
+import type { HistoryPoint, LiveChange, Station, StationStatus } from "@/lib/types";
+import { Trend } from "./Trend";
 
 export function StationCard({
   station,
@@ -9,6 +10,9 @@ export function StationCard({
   dimmed,
   now,
   distanceM,
+  history,
+  alertOn,
+  onToggleAlert,
   onUnfollow,
   onShowOnMap,
 }: {
@@ -18,6 +22,9 @@ export function StationCard({
   dimmed: boolean;
   now: number;
   distanceM: number | null;
+  history: HistoryPoint[] | undefined;
+  alertOn: boolean;
+  onToggleAlert: () => void;
   onUnfollow: () => void;
   onShowOnMap: () => void;
 }) {
@@ -25,7 +32,6 @@ export function StationCard({
   const closed = status && !status.is_renting;
   const classic = status ? Math.max(0, status.bikes_available - status.ebikes_available) : 0;
   const total = status ? status.bikes_available + status.docks_available : 0;
-  const bikePct = status && total > 0 ? (status.bikes_available / total) * 100 : 0;
 
   return (
     <article
@@ -36,13 +42,24 @@ export function StationCard({
     >
       <header className="flex items-start justify-between gap-3">
         <h3 className="font-semibold leading-snug">{name}</h3>
-        <button
-          onClick={onUnfollow}
-          aria-label={`Unfollow ${name}`}
-          className="-mr-1 -mt-1 rounded-md px-2 py-1 text-xs text-stone-400 hover:bg-stone-100 hover:text-stone-700"
-        >
-          Unfollow
-        </button>
+        <div className="-mr-1 -mt-1 flex shrink-0 items-center">
+          <button
+            onClick={onToggleAlert}
+            aria-pressed={alertOn}
+            aria-label={alertOn ? `Stop alerts for ${name}` : `Alert me when ${name} runs out or gets bikes back`}
+            title={alertOn ? "Alerts on" : "Alert me when this station runs out or gets bikes back"}
+            className={`rounded-md px-1.5 py-1 text-sm transition ${alertOn ? "" : "opacity-30 grayscale hover:opacity-70"}`}
+          >
+            🔔
+          </button>
+          <button
+            onClick={onUnfollow}
+            aria-label={`Unfollow ${name}`}
+            className="rounded-md px-2 py-1 text-xs text-stone-400 hover:bg-stone-100 hover:text-stone-700"
+          >
+            Unfollow
+          </button>
+        </div>
       </header>
 
       {!status ? (
@@ -56,12 +73,7 @@ export function StationCard({
             <Stat label="Open docks" value={status.docks_available} />
           </dl>
 
-          <div
-            className="mt-4 h-2 overflow-hidden rounded-full bg-stone-100"
-            title={`${status.bikes_available} of ${total} docks hold a bike`}
-          >
-            <div className="h-full rounded-full bg-sky-500 transition-all duration-700" style={{ width: `${bikePct}%` }} />
-          </div>
+          <Trend points={history} now={now} capacity={station?.capacity ?? null} />
           <p className="sr-only">{`${status.bikes_available} of ${total} docks hold a bike`}</p>
 
           <div className="mt-3 flex items-center justify-between text-xs text-stone-500">

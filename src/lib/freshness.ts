@@ -12,6 +12,7 @@ export type WorkerRun = {
   stations_seen: number | null;
   source_updated_at: string | null;
   error: string | null;
+  duration_ms?: number | null;
 };
 
 export type Freshness =

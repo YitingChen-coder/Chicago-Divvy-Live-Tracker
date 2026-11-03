@@ -27,3 +27,13 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .flash, .live-dot { animation: none; }
 }
+
+/* Alerts slide in from the right. */
+@keyframes toast-in {
+  from { transform: translateX(110%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.toast-in { animation: toast-in 0.25s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .toast-in { animation: none; }
+}

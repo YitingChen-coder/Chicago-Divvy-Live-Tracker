@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useAlerts } from "@/lib/alerts";
 import { getFreshness } from "@/lib/freshness";
 import { distanceM, useGeolocation } from "@/lib/geo";
 import type { MapFilter } from "@/lib/mapStyle";
@@ -14,12 +15,15 @@ import { MapView } from "./MapView";
 import { NearbyView } from "./NearbyView";
 import { StationCard, StationCardSkeleton } from "./StationCard";
 import { StationSearch } from "./StationSearch";
+import { SystemView } from "./SystemView";
+import { Toasts } from "./Toasts";
 
-type View = "mine" | "map" | "nearby";
+type View = "mine" | "map" | "nearby" | "system";
 const VIEWS: { id: View; label: string; icon: string }[] = [
   { id: "mine", label: "My stations", icon: "★" },
   { id: "map", label: "Map", icon: "◍" },
   { id: "nearby", label: "Near me", icon: "◎" },
+  { id: "system", label: "System", icon: "⚙" },
 ];
 
 export function Dashboard() {
@@ -28,6 +32,7 @@ export function Dashboard() {
   const loading = !stations || !follows; // a local const so TypeScript narrows both below
   const now = useNow();
   const { geo, locate } = useGeolocation();
+  const alerts = useAlerts(changes, statuses, stations);
   const [view, setView] = useState<View>("mine");
   const [mapFilter, setMapFilter] = useState<MapFilter>("all");
   const [focus, setFocus] = useState<string | null>(null);
@@ -48,16 +53,17 @@ export function Dashboard() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
+      <Toasts toasts={alerts.toasts} onDismiss={alerts.dismiss} />
       <FreshnessBar freshness={freshness} latestRun={live.latestRun} socket={live.socket} now={now} />
       <CityStats statuses={statuses} />
 
-      <nav aria-label="Views" className="mt-6 flex gap-1 border-b border-stone-200">
+      <nav aria-label="Views" className="mt-6 flex gap-1 overflow-x-auto border-b border-stone-200">
         {VIEWS.map((v) => (
           <button
             key={v.id}
             onClick={() => setView(v.id)}
             aria-current={view === v.id ? "page" : undefined}
-            className={`-mb-px flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm font-medium transition ${
+            className={`-mb-px flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2.5 sm:px-4 text-sm font-medium transition ${
               view === v.id ? "border-sky-600 text-sky-700" : "border-transparent text-stone-500 hover:text-stone-800"
             }`}
           >
@@ -105,7 +111,9 @@ export function Dashboard() {
         />
       )}
 
-      {(view === "mine" || loading) && (
+      {view === "system" && <SystemView runs={live.runs} now={now} socket={live.socket} lastPushAt={live.lastPushAt} />}
+
+      {(view === "mine" || (loading && view !== "system")) && (
         <>
           <section className="mt-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -135,6 +143,9 @@ export function Dashboard() {
                       dimmed={dimmed}
                       now={now}
                       distanceM={userPos && st ? distanceM(userPos, st) : null}
+                      history={live.history[id]}
+                      alertOn={alerts.watched.includes(id)}
+                      onToggleAlert={() => alerts.toggle(id)}
                       onUnfollow={() => unfollow(id)}
                       onShowOnMap={() => showOnMap(id)}
                     />
