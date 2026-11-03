@@ -9,10 +9,11 @@ Sign in, follow the stations you care about, and watch bikes, e-bikes and open d
 
 ## Features
 
+- **First-time guide**: four short steps on first sign-in: what the page does, follow a few stations right there, how to read a card, and the other views. "Seen" is saved on the Clerk user, so it doesn't repeat on another device; **Guide** (or "How it works" on phones) reopens it.
 - **My stations**: cards for the stations you follow. Bikes, e-bikes and open docks change in place, with a flash and a "+2 bikes" chip when Realtime pushes an update, and a badge when a station is empty, full or closed.
 - **Map**: all ~2,000 stations, colored by availability (bikes / 1–2 bikes / none / no docks / closed). You can filter to "has bikes", "has e-bikes" or "has open docks". Tap a dot to follow it or get walking directions.
 - **Near me**: choose "I need a bike", "I want an e-bike" or "I need to return one" to get the 8 closest matching stations to your location (or to one of your stations), with distance, walking time and a Directions button that opens Google Maps.
-- **24-hour trend**: each card has a small step chart of bikes (and e-bikes) since tracking began, up to the last 24 hours, with the range and how long the station sat empty.
+- **Station cards**: a dock grid (one square per dock: classic, e-bike, open, out of service), a 24-hour step chart of bikes you can hover to read any moment, bikes taken / returned since tracking began, and, when a station is down to 2 bikes or fewer, the closest station within ~10 minutes' walk that has 3+.
 - **Alerts**: tap 🔔 on a card to get an in-page alert, plus a browser notification when the tab is in the background, when that station runs out of bikes, gets them back, fills up or closes.
 - **System tab**: the pipeline from Divvy to this page with live timings, the worker's success rate and run time, a bar chart of stations changed per run, and the last 12 runs.
 - **Citywide pulse**: live totals of bikes and e-bikes available, plus how many stations are empty or full.

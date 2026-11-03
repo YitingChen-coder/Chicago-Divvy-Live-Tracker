@@ -13,6 +13,7 @@ import { CityStats } from "./CityStats";
 import { FreshnessBar } from "./FreshnessBar";
 import { MapView } from "./MapView";
 import { NearbyView } from "./NearbyView";
+import { Onboarding, useOnboarding } from "./Onboarding";
 import { StationCard, StationCardSkeleton } from "./StationCard";
 import { StationSearch } from "./StationSearch";
 import { SystemView } from "./SystemView";
@@ -33,6 +34,7 @@ export function Dashboard() {
   const now = useNow();
   const { geo, locate } = useGeolocation();
   const alerts = useAlerts(changes, statuses, stations);
+  const onboarding = useOnboarding();
   const [view, setView] = useState<View>("mine");
   const [mapFilter, setMapFilter] = useState<MapFilter>("all");
   const [focus, setFocus] = useState<string | null>(null);
@@ -74,6 +76,9 @@ export function Dashboard() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
       <Toasts toasts={alerts.toasts} onDismiss={alerts.dismiss} />
+      {onboarding.open && !loading && (
+        <Onboarding stations={stations} follows={follows} onFollow={follow} onFinish={onboarding.finish} onGoTo={setView} />
+      )}
       <FreshnessBar freshness={freshness} latestRun={live.latestRun} socket={live.socket} now={now} />
       <CityStats statuses={statuses} />
 
@@ -95,6 +100,12 @@ export function Dashboard() {
             )}
           </button>
         ))}
+        <button
+          onClick={onboarding.show}
+          className="-mb-px ml-auto hidden shrink-0 items-center gap-1 border-b-2 border-transparent px-3 py-2.5 text-sm text-stone-500 hover:text-stone-800 sm:flex"
+        >
+          <span aria-hidden>?</span> Guide
+        </button>
       </nav>
 
       {live.error && (
@@ -142,6 +153,9 @@ export function Dashboard() {
                 <h2 className="text-xl font-semibold tracking-tight">Your stations</h2>
                 <p className="text-sm text-stone-500">
                   {loading ? "Loading…" : follows.length === 0 ? "Pick stations to watch." : `${follows.length} followed · updates appear here on their own`}
+                  <button onClick={onboarding.show} className="ml-2 text-sky-700 underline sm:hidden">
+                    How it works
+                  </button>
                 </p>
               </div>
               <StationSearch stations={stations} follows={follows ?? []} onFollow={follow} disabled={loading} />
