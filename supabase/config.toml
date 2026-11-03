@@ -1,0 +1,4 @@
+# Only the parts of the Supabase config this project relies on.
+[functions.divvy-sync]
+# Called by Cron with a shared secret header, not a user JWT.
+verify_jwt = false

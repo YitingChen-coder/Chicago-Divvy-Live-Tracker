@@ -1,0 +1,147 @@
+{
+ "data": {
+  "stations": [
+   {
+    "station_id": "2129148164045400658",
+    "name": "Dearborn St & Division St",
+    "short_name": "CHI02125",
+    "lon": -87.62991,
+    "lat": 41.9043,
+    "capacity": 15,
+    "rental_uris": {
+     "android": "https://chi.lft.to/lastmile_qr_scan",
+     "ios": "https://chi.lft.to/lastmile_qr_scan"
+    },
+    "rental_methods": [
+     "KEY",
+     "CREDITCARD",
+     "TRANSITCARD"
+    ],
+    "has_kiosk": true,
+    "station_type": "classic",
+    "external_id": "2129148164045400658",
+    "electric_bike_surcharge_waiver": false,
+    "eightd_station_services": [],
+    "eightd_has_key_dispenser": false
+   },
+   {
+    "station_id": "2134710117969748266",
+    "name": "St Clair St & Ohio St",
+    "short_name": "CHI02143",
+    "lon": -87.62264,
+    "lat": 41.89238,
+    "capacity": 11,
+    "rental_uris": {
+     "android": "https://chi.lft.to/lastmile_qr_scan",
+     "ios": "https://chi.lft.to/lastmile_qr_scan"
+    },
+    "rental_methods": [
+     "KEY",
+     "CREDITCARD",
+     "TRANSITCARD"
+    ],
+    "has_kiosk": true,
+    "station_type": "classic",
+    "external_id": "2134710117969748266",
+    "electric_bike_surcharge_waiver": false,
+    "eightd_station_services": [],
+    "eightd_has_key_dispenser": false
+   },
+   {
+    "station_id": "a3a565b1-a135-11e9-9cda-0a87ae2ba916",
+    "name": "Halsted St & Polk St",
+    "short_name": "CHI00359",
+    "lon": -87.64664,
+    "lat": 41.87184,
+    "capacity": 30,
+    "rental_uris": {
+     "android": "https://chi.lft.to/lastmile_qr_scan",
+     "ios": "https://chi.lft.to/lastmile_qr_scan"
+    },
+    "rental_methods": [
+     "KEY",
+     "CREDITCARD",
+     "TRANSITCARD"
+    ],
+    "has_kiosk": false,
+    "station_type": "classic",
+    "external_id": "a3a565b1-a135-11e9-9cda-0a87ae2ba916",
+    "electric_bike_surcharge_waiver": false,
+    "eightd_station_services": [],
+    "eightd_has_key_dispenser": false
+   },
+   {
+    "station_id": "a3a72012-a135-11e9-9cda-0a87ae2ba916",
+    "name": "Rush St & Cedar St",
+    "short_name": "CHI00537",
+    "lon": -87.627690528,
+    "lat": 41.90230870122,
+    "capacity": 16,
+    "rental_uris": {
+     "android": "https://chi.lft.to/lastmile_qr_scan",
+     "ios": "https://chi.lft.to/lastmile_qr_scan"
+    },
+    "rental_methods": [
+     "KEY",
+     "CREDITCARD",
+     "TRANSITCARD"
+    ],
+    "has_kiosk": false,
+    "station_type": "classic",
+    "external_id": "a3a72012-a135-11e9-9cda-0a87ae2ba916",
+    "electric_bike_surcharge_waiver": false,
+    "eightd_station_services": [],
+    "eightd_has_key_dispenser": false
+   },
+   {
+    "station_id": "1955905507044284968",
+    "name": "Nordica Ave & Medill Ave",
+    "short_name": "CHI01782",
+    "lon": -87.80202,
+    "lat": 41.92227,
+    "capacity": 15,
+    "rental_uris": {
+     "android": "https://chi.lft.to/lastmile_qr_scan",
+     "ios": "https://chi.lft.to/lastmile_qr_scan"
+    },
+    "rental_methods": [
+     "KEY",
+     "CREDITCARD",
+     "TRANSITCARD"
+    ],
+    "has_kiosk": false,
+    "station_type": "classic",
+    "external_id": "1955905507044284968",
+    "electric_bike_surcharge_waiver": false,
+    "eightd_station_services": [],
+    "eightd_has_key_dispenser": false
+   },
+   {
+    "station_id": "2214504720540875974",
+    "name": "Troy St & Grace St",
+    "short_name": "CHI02322",
+    "lon": -87.70627,
+    "lat": 41.95024,
+    "capacity": 8,
+    "rental_uris": {
+     "android": "https://chi.lft.to/lastmile_qr_scan",
+     "ios": "https://chi.lft.to/lastmile_qr_scan"
+    },
+    "rental_methods": [
+     "KEY",
+     "CREDITCARD",
+     "TRANSITCARD"
+    ],
+    "has_kiosk": false,
+    "station_type": "classic",
+    "external_id": "2214504720540875974",
+    "electric_bike_surcharge_waiver": false,
+    "eightd_station_services": [],
+    "eightd_has_key_dispenser": false
+   }
+  ]
+ },
+ "last_updated": 1793672981,
+ "ttl": 60,
+ "version": "1.1"
+}
