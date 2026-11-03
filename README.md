@@ -44,6 +44,8 @@ Divvy GBFS feed ──► Edge Function divvy-sync ──► Postgres ──► 
   - a malformed station is skipped
   - a broken feed throws, so the run is recorded as failed
 - `npm test`: checks the page's loading / fresh / stale / down logic.
+- `npm run check:rls`: signs in a throwaway Clerk user against the real database and checks that it can read stations, add and remove its own follows, and that a signed-out request is refused. Deletes the user afterwards.
+- `npm run check:realtime`: same throwaway user, subscribed the way the page is; passes when the worker's next runs push `worker_runs` and `station_status` changes to it.
 
 ## Run it yourself
 
