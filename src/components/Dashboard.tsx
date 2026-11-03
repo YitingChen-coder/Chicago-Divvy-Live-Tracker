@@ -42,6 +42,26 @@ export function Dashboard() {
   const recent = useMemo(() => changes.filter((c) => now - c.at < 8000), [changes, now]);
   const userPos = geo.status === "ok" ? geo.position : null;
 
+  // For a followed station that's nearly empty: the closest station within ~10 min walk with 3+ bikes.
+  const alternatives = useMemo(() => {
+    const out: Record<string, { station: Station; status: (typeof statuses)[string]; meters: number } | null> = {};
+    if (!stations || !follows) return out;
+    const all = [...stations.values()];
+    for (const id of follows) {
+      const here = stations.get(id);
+      if (!here || (statuses[id]?.bikes_available ?? 0) > 2) continue;
+      let best: (typeof out)[string] = null;
+      for (const s of all) {
+        const st = statuses[s.station_id];
+        if (s.station_id === id || !st?.is_renting || st.bikes_available < 3) continue;
+        const m = distanceM(here, s);
+        if (m < 800 && (!best || m < best.meters)) best = { station: s, status: st, meters: m };
+      }
+      out[id] = best;
+    }
+    return out;
+  }, [stations, follows, statuses]);
+
   const showOnMap = (id: string) => {
     setFocus(id);
     setView("map");
@@ -146,6 +166,7 @@ export function Dashboard() {
                       distanceM={userPos && st ? distanceM(userPos, st) : null}
                       history={live.history[id]}
                       alertOn={alerts.watched.includes(id)}
+                      alternative={alternatives[id] ?? null}
                       onToggleAlert={() => alerts.toggle(id)}
                       onUnfollow={() => unfollow(id)}
                       onShowOnMap={() => showOnMap(id)}

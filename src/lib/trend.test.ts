@@ -1,7 +1,7 @@
 // Checks how history points become the step chart on each card.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { summarize, toSteps } from "./trend.ts";
+import { flow, stepAt, summarize, toSteps } from "./trend.ts";
 
 const H = 3_600_000;
 const p = (t: number, bikes: number, ebikes = 0) => ({ t, bikes, ebikes, docks: 10 - bikes });
@@ -29,4 +29,15 @@ test("no history gives no steps", () => {
 test("summary: min, max, and time spent empty", () => {
   const s = summarize(toSteps([p(0, 4), p(1 * H, 0), p(3 * H, 6)], 0, 4 * H))!;
   assert.deepEqual(s, { min: 0, max: 6, emptyMs: 2 * H, changes: 2 });
+});
+
+test("flow: drops are bikes taken, rises are bikes returned", () => {
+  assert.deepEqual(flow([p(0, 5), p(1 * H, 3), p(2 * H, 4), p(3 * H, 0)]), { taken: 6, returned: 1 });
+  assert.deepEqual(flow([p(0, 5)]), { taken: 0, returned: 0 });
+});
+
+test("stepAt finds the value showing at a time", () => {
+  const steps = toSteps([p(0, 2), p(2 * H, 6)], 0, 4 * H);
+  assert.equal(stepAt(steps, 1 * H)!.bikes, 2);
+  assert.equal(stepAt(steps, 3 * H)!.bikes, 6);
 });

@@ -1,6 +1,7 @@
 import { formatAgo } from "@/lib/freshness";
-import { directionsUrl, distanceLabel } from "@/lib/geo";
+import { directionsUrl, distanceLabel, walkMinutes } from "@/lib/geo";
 import type { HistoryPoint, LiveChange, Station, StationStatus } from "@/lib/types";
+import { DockGrid } from "./DockGrid";
 import { Trend } from "./Trend";
 
 export function StationCard({
@@ -12,6 +13,7 @@ export function StationCard({
   distanceM,
   history,
   alertOn,
+  alternative,
   onToggleAlert,
   onUnfollow,
   onShowOnMap,
@@ -24,6 +26,7 @@ export function StationCard({
   distanceM: number | null;
   history: HistoryPoint[] | undefined;
   alertOn: boolean;
+  alternative: { station: Station; status: StationStatus; meters: number } | null;
   onToggleAlert: () => void;
   onUnfollow: () => void;
   onShowOnMap: () => void;
@@ -73,7 +76,21 @@ export function StationCard({
             <Stat label="Open docks" value={status.docks_available} />
           </dl>
 
+          <DockGrid status={status} capacity={station?.capacity ?? null} />
           <Trend points={history} now={now} capacity={station?.capacity ?? null} />
+          {alternative && status.bikes_available <= 2 && (
+            <a
+              href={directionsUrl(alternative.station)}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 flex items-center justify-between gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-900 hover:bg-emerald-100"
+            >
+              <span>
+                <b>{alternative.status.bikes_available} bikes</b> at {alternative.station.name}
+              </span>
+              <span className="shrink-0">~{walkMinutes(alternative.meters)} min walk ↗</span>
+            </a>
+          )}
           <p className="sr-only">{`${status.bikes_available} of ${total} docks hold a bike`}</p>
 
           <div className="mt-3 flex items-center justify-between text-xs text-stone-500">

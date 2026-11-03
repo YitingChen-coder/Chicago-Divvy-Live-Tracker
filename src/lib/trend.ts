@@ -27,3 +27,25 @@ export function summarize(steps: Step[]) {
   const emptyMs = steps.filter((s) => s.bikes === 0).reduce((n, s) => n + (s.x1 - s.x0), 0);
   return { min: Math.min(...bikes), max: Math.max(...bikes), emptyMs, changes: steps.length - 1 };
 }
+
+/**
+ * Bikes taken and returned between consecutive points. A drop in bikes counts
+ * as bikes taken, a rise as bikes returned. Several riders within one
+ * 30-second check net out, so these are lower bounds.
+ */
+export function flow(points: HistoryPoint[]): { taken: number; returned: number } {
+  const sorted = [...points].sort((a, b) => a.t - b.t);
+  let taken = 0;
+  let returned = 0;
+  for (let i = 1; i < sorted.length; i++) {
+    const d = sorted[i].bikes - sorted[i - 1].bikes;
+    if (d < 0) taken -= d;
+    else returned += d;
+  }
+  return { taken, returned };
+}
+
+/** The value showing at time t, for the hover readout. */
+export function stepAt(steps: Step[], t: number): Step | undefined {
+  return steps.find((s) => t >= s.x0 && t <= s.x1) ?? steps.at(-1);
+}
