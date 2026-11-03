@@ -3,7 +3,7 @@
 // Run: deno test supabase/functions/divvy-sync/  (or: npm run test:worker)
 
 import { assertEquals, assertThrows } from "@std/assert";
-import { changedStationRows, changedStatusRows, parseInfoFeed, parseStatusFeed, type StatusRow } from "./sync.ts";
+import { changedStationRows, changedStatusRows, historyRows, parseInfoFeed, parseStatusFeed, type StatusRow } from "./sync.ts";
 
 const load = async (name: string) =>
   JSON.parse(await Deno.readTextFile(new URL(`./fixtures/${name}`, import.meta.url)));
@@ -64,4 +64,14 @@ Deno.test("station info: only new or renamed stations are saved", async () => {
   assertEquals(changedStationRows(info, current), []);
   const renamed = info.map((s, i) => (i === 0 ? { ...s, name: "Renamed" } : s));
   assertEquals(changedStationRows(renamed, current).map((s) => s.name), ["Renamed"]);
+});
+
+Deno.test("history: one point per changed station, without last_reported", () => {
+  const changed = changedStatusRows(after.rows, byId(before.rows));
+  const rows = historyRows(changed, "2026-11-03T02:33:00.000Z");
+  assertEquals(rows.length, COUNTS_CHANGED.length);
+  for (const r of rows) {
+    assertEquals(r.recorded_at, "2026-11-03T02:33:00.000Z");
+    assertEquals("last_reported" in r, false);
+  }
 });

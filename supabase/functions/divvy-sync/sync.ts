@@ -95,3 +95,10 @@ export function changedStationRows(incoming: StationRow[], current: Map<string, 
     );
   });
 }
+
+export type HistoryRow = Omit<StatusRow, "last_reported"> & { recorded_at: string };
+
+/** One history point per changed station, all stamped with the same time. */
+export function historyRows(changed: StatusRow[], recordedAt: string): HistoryRow[] {
+  return changed.map(({ last_reported: _ignored, ...counts }) => ({ ...counts, recorded_at: recordedAt }));
+}

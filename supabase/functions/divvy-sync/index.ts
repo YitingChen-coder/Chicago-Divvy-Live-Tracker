@@ -8,6 +8,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
   changedStationRows,
   changedStatusRows,
+  historyRows,
   parseInfoFeed,
   parseStatusFeed,
   type StationRow,
@@ -102,6 +103,13 @@ Deno.serve(async (req) => {
     const changedAt = new Date().toISOString();
     await upsertInChunks(db, "station_status", changed.map((r) => ({ ...r, changed_at: changedAt })));
     run.rows_changed = changed.length;
+
+    // Same rows into the history table, for the 24-hour trend on each card.
+    const history = historyRows(changed, changedAt);
+    for (let i = 0; i < history.length; i += 500) {
+      const { error } = await db.from("station_history").insert(history.slice(i, i + 500));
+      if (error) throw new Error(`insert station_history: ${error.message}`);
+    }
     console.log(`status: ${changed.length} of ${rows.length} stations changed`);
 
     run.ok = true;
