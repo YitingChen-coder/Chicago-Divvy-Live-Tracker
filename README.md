@@ -7,6 +7,14 @@ Sign in, follow the stations you care about, and watch bikes, e-bikes and open d
 - **Live app:** https://chicago-divvy-live-tracker.vercel.app
 - **Data-flow chart:** [docs/data-flow.md](docs/data-flow.md)
 
+## Features
+
+- **My stations**: cards for the stations you follow. Bikes, e-bikes and open docks change in place, with a flash and a "+2 bikes" chip when Realtime pushes an update, and a badge when a station is empty, full or closed.
+- **Map**: all ~2,000 stations, colored by availability (bikes / 1–2 bikes / none / no docks / closed). You can filter to "has bikes", "has e-bikes" or "has open docks". Tap a dot to follow it or get walking directions.
+- **Near me**: choose "I need a bike", "I want an e-bike" or "I need to return one" to get the 8 closest matching stations to your location (or to one of your stations), with distance, walking time and a Directions button that opens Google Maps.
+- **Citywide pulse**: live totals of bikes and e-bikes available, plus how many stations are empty or full.
+- **Freshness bar**: loading / live / stale / down, with how old Divvy's own data is and when the next check runs.
+
 ## How it works
 
 ```
@@ -17,7 +25,7 @@ Divvy GBFS feed ──► Edge Function divvy-sync ──► Postgres ──► 
 1. **Supabase Cron** calls the `divvy-sync` Edge Function every 30 seconds.
 2. The worker fetches `station_status.json`, compares each station's bikes / e-bikes / docks / renting flag with the database, and **upserts only the stations that changed**. In a 3-minute sample, 1,119 of 2,079 stations checked in but only 80 actually changed, so comparing counts instead of timestamps cuts writes about 14×.
 3. Every run, successful or not, adds a row to `worker_runs`.
-4. **Supabase Realtime** pushes each changed `station_status` row, and each new `worker_runs` row, to open pages. Each page subscribes only to the stations that person follows.
+4. **Supabase Realtime** pushes each changed `station_status` row, and each new `worker_runs` row, to open pages. Each page subscribes only to the stations that person follows. The map and "Near me" cover every station: after each worker run that changed something, the page fetches only the rows whose `changed_at` is newer than what it already has.
 5. The page shows how fresh the data is:
 
 | State | When | What you see |
@@ -62,4 +70,4 @@ Divvy GBFS feed ──► Edge Function divvy-sync ──► Postgres ──► 
 
 ## Stack
 
-Next.js 16 · Tailwind CSS 4 · Clerk · Supabase (Postgres, Realtime, Edge Functions, Cron) · Vercel
+Next.js 16 · Tailwind CSS 4 · Leaflet + OpenStreetMap · Clerk · Supabase (Postgres, Realtime, Edge Functions, Cron) · Vercel

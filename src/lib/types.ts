@@ -1,6 +1,8 @@
 export type Station = {
   station_id: string;
   name: string;
+  lat: number;
+  lon: number;
   capacity: number | null;
 };
 
@@ -24,3 +26,15 @@ export type LiveChange = {
   closed?: boolean;
   reopened?: boolean;
 };
+
+/** How a station looks at a glance, used for card badges and map colors. */
+export type Availability = "closed" | "empty" | "low" | "full" | "ok";
+
+export function availability(s: StationStatus | undefined): Availability | null {
+  if (!s) return null;
+  if (!s.is_renting) return "closed";
+  if (s.bikes_available === 0) return "empty";
+  if (s.docks_available === 0) return "full";
+  if (s.bikes_available <= 2) return "low";
+  return "ok";
+}

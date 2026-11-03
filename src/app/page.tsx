@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <>
       <header className="border-b border-stone-200 bg-white">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
           <h1 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
             <span aria-hidden className="inline-block h-3 w-3 rounded-full bg-sky-500" />
             Divvy Live Tracker

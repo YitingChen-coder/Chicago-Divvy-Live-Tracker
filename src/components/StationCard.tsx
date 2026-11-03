@@ -1,4 +1,5 @@
 import { formatAgo } from "@/lib/freshness";
+import { directionsUrl, formatDistance, walkMinutes } from "@/lib/geo";
 import type { LiveChange, Station, StationStatus } from "@/lib/types";
 
 export function StationCard({
@@ -7,14 +8,18 @@ export function StationCard({
   change,
   dimmed,
   now,
+  distanceM,
   onUnfollow,
+  onShowOnMap,
 }: {
   station: Station | undefined;
   status: StationStatus | undefined;
   change: LiveChange | undefined;
   dimmed: boolean;
   now: number;
+  distanceM: number | null;
   onUnfollow: () => void;
+  onShowOnMap: () => void;
 }) {
   const name = station?.name ?? "Unknown station";
   const closed = status && !status.is_renting;
@@ -59,9 +64,34 @@ export function StationCard({
           </div>
           <p className="sr-only">{`${status.bikes_available} of ${total} docks hold a bike`}</p>
 
-          <footer className="mt-3 flex items-center justify-between text-xs text-stone-500">
+          <div className="mt-3 flex items-center justify-between text-xs text-stone-500">
             <span suppressHydrationWarning>Changed {formatAgo(Math.round((now - Date.parse(status.changed_at)) / 1000))}</span>
             {change && <DeltaChip change={change} />}
+          </div>
+
+          <footer className="mt-4 flex items-center gap-2 border-t border-stone-100 pt-3">
+            {distanceM != null && (
+              <span className="mr-auto text-xs text-stone-500">
+                {formatDistance(distanceM)} · ~{walkMinutes(distanceM)} min walk
+              </span>
+            )}
+            <button
+              onClick={onShowOnMap}
+              aria-label={`Show ${name} on map`}
+              className={`${distanceM == null ? "ml-auto " : ""}rounded-md border border-stone-300 px-2.5 py-1 text-xs font-medium hover:border-stone-500`}
+            >
+              Map
+            </button>
+            {station && (
+              <a
+                href={directionsUrl(station)}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-md bg-sky-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-sky-700"
+              >
+                Directions ↗
+              </a>
+            )}
           </footer>
         </>
       )}
