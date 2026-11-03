@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: #fafaf9; /* stone-50 */
+  color: #1c1917; /* stone-900 */
+}
+
+/* A station card glows briefly when Realtime pushes a change. */
+@keyframes flash {
+  0% { box-shadow: 0 0 0 0 rgb(14 165 233 / 0.55); background-color: rgb(240 249 255); }
+  100% { box-shadow: 0 0 0 12px rgb(14 165 233 / 0); background-color: white; }
+}
+.flash { animation: flash 1.6s ease-out; }
+
+/* The "Live" dot breathes while data is fresh. */
+@keyframes live {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(16 185 129 / 0.6); }
+  50% { box-shadow: 0 0 0 5px rgb(16 185 129 / 0); }
+}
+.live-dot { animation: live 2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flash, .live-dot { animation: none; }
+}
