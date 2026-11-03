@@ -27,11 +27,16 @@ export function FreshnessBar({
     case "loading":
       detail = "Loading the latest data from the worker.";
       break;
-    case "fresh":
-      detail = `Checked Divvy ${formatAgo(freshness.checkedAgoS)}${
-        latestRun?.rows_changed != null ? ` · ${latestRun.rows_changed} stations changed citywide` : ""
-      } · next check in ~${nextIn}s`;
+    case "fresh": {
+      // Divvy refreshes about once a minute and we check every 30 s, so every other
+      // check finds nothing new. Show the feed's own age instead of "0 changed".
+      const sourceAgoS = latestRun?.source_updated_at
+        ? Math.max(0, Math.round((now - Date.parse(latestRun.source_updated_at)) / 1000))
+        : null;
+      const changed = latestRun?.rows_changed ? ` · ${latestRun.rows_changed} stations changed citywide` : "";
+      detail = `${sourceAgoS != null ? `Divvy data from ${formatAgo(sourceAgoS)}` : `Checked ${formatAgo(freshness.checkedAgoS)}`}${changed} · next check in ~${nextIn}s`;
       break;
+    }
     case "stale":
       detail = `${freshness.reason} ${
         freshness.checkedAgoS != null ? `Last good check ${formatAgo(freshness.checkedAgoS)}.` : ""
@@ -48,13 +53,12 @@ export function FreshnessBar({
 
   return (
     <div
-      role="status"
-      aria-live="polite"
       className={`sticky top-0 z-10 mt-4 flex flex-col gap-1 rounded-xl border px-4 py-3 shadow-sm backdrop-blur sm:flex-row sm:items-center sm:gap-3 ${s.box}`}
     >
-      <div className="flex items-center gap-2">
+      {/* Only the state is announced to screen readers; the ticking detail would be noise. */}
+      <div className="flex items-center gap-2" role="status" aria-live="polite">
         <span className={`inline-block h-2.5 w-2.5 rounded-full ${s.dot}`} aria-hidden />
-        <span className="font-semibold">{s.title}</span>
+        <span className="whitespace-nowrap font-semibold">{s.title}</span>
       </div>
       <span className="text-sm text-stone-700" suppressHydrationWarning>
         {detail}
@@ -64,7 +68,6 @@ export function FreshnessBar({
           Reconnecting to live updates…
         </span>
       )}
-      <span className="sr-only">{new Date(now).toLocaleTimeString()}</span>
     </div>
   );
 }

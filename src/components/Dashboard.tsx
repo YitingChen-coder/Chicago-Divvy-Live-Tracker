@@ -222,6 +222,7 @@ export function Dashboard() {
               />
             ))}
         </div>
+        {!loading && follows.length > 0 && <MoreSuggestions stations={stations} follows={follows} onFollow={follow} />}
       </section>
 
       {!loading && follows.length > 0 && (
@@ -240,26 +241,49 @@ const SUGGESTED = [
   "DuSable Lake Shore Dr & Monroe St",
 ];
 
-function EmptyState({ stations, onFollow }: { stations: Map<string, Station>; onFollow: (id: string) => void }) {
+function suggestedStations(stations: Map<string, Station>, follows: string[]): Station[] {
   const byName = new Map([...stations.values()].map((s) => [s.name, s]));
-  const picks = SUGGESTED.map((n) => byName.get(n)).filter((s): s is Station => !!s);
+  return SUGGESTED.map((n) => byName.get(n)).filter((s): s is Station => !!s && !follows.includes(s.station_id));
+}
+
+function SuggestionChips({ picks, onFollow }: { picks: Station[]; onFollow: (id: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {picks.map((s) => (
+        <button
+          key={s.station_id}
+          onClick={() => onFollow(s.station_id)}
+          className="rounded-full border border-stone-300 bg-white px-3 py-1.5 text-sm hover:border-sky-500 hover:bg-sky-50"
+        >
+          + {s.name}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function EmptyState({ stations, onFollow }: { stations: Map<string, Station>; onFollow: (id: string) => void }) {
   return (
     <div className="col-span-full rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center">
       <p className="text-base font-medium">You aren&apos;t following any stations yet.</p>
       <p className="mt-1 text-sm text-stone-500">
         Search above, or start with a busy one. Busy stations change every few minutes.
       </p>
-      <div className="mt-5 flex flex-wrap justify-center gap-2">
-        {picks.map((s) => (
-          <button
-            key={s.station_id}
-            onClick={() => onFollow(s.station_id)}
-            className="rounded-full border border-stone-300 px-3 py-1.5 text-sm hover:border-sky-500 hover:bg-sky-50"
-          >
-            + {s.name}
-          </button>
-        ))}
+      <div className="mt-5 flex justify-center">
+        <SuggestionChips picks={suggestedStations(stations, [])} onFollow={onFollow} />
       </div>
+    </div>
+  );
+}
+
+/** Shown until someone follows 3 stations, so the first visit has something that moves. */
+function MoreSuggestions({ stations, follows, onFollow }: { stations: Map<string, Station>; follows: string[]; onFollow: (id: string) => void }) {
+  const picks = suggestedStations(stations, follows).slice(0, 4);
+  if (follows.length >= 3 || picks.length === 0) return null;
+  return (
+    <div className="mt-5">
+      <p className="mb-2 text-sm text-stone-500">Busy stations you could add:</p>
+      <SuggestionChips picks={picks} onFollow={onFollow} />
     </div>
   );
 }

@@ -44,20 +44,20 @@ export function StationCard({
         <p className="mt-6 text-sm text-stone-500">Waiting for the first update from this station…</p>
       ) : (
         <>
-          {closed && (
-            <p className="mt-2 inline-block rounded-full bg-stone-800 px-2 py-0.5 text-xs font-medium text-white">
-              Not renting right now
-            </p>
-          )}
+          <Alert closed={!!closed} bikes={status.bikes_available} docks={status.docks_available} />
           <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
-            <Stat label="Bikes" value={classic} />
+            <Stat label="Classic bikes" value={classic} />
             <Stat label="E-bikes" value={status.ebikes_available} accent />
             <Stat label="Open docks" value={status.docks_available} />
           </dl>
 
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-stone-100" aria-hidden>
+          <div
+            className="mt-4 h-2 overflow-hidden rounded-full bg-stone-100"
+            title={`${status.bikes_available} of ${total} docks hold a bike`}
+          >
             <div className="h-full rounded-full bg-sky-500 transition-all duration-700" style={{ width: `${bikePct}%` }} />
           </div>
+          <p className="sr-only">{`${status.bikes_available} of ${total} docks hold a bike`}</p>
 
           <footer className="mt-3 flex items-center justify-between text-xs text-stone-500">
             <span suppressHydrationWarning>Changed {formatAgo(Math.round((now - Date.parse(status.changed_at)) / 1000))}</span>
@@ -71,11 +71,28 @@ export function StationCard({
 
 function Stat({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
   return (
-    <div>
-      <dd className={`text-3xl font-semibold tabular-nums ${accent ? "text-sky-600" : ""}`}>{value}</dd>
+    <div className="flex flex-col-reverse">
       <dt className="text-xs text-stone-500">{label}</dt>
+      <dd className={`text-3xl font-semibold tabular-nums ${value === 0 ? "text-stone-300" : accent ? "text-sky-600" : ""}`}>
+        {value}
+      </dd>
     </div>
   );
+}
+
+/** The one thing a rider needs to know before walking over. */
+function Alert({ closed, bikes, docks }: { closed: boolean; bikes: number; docks: number }) {
+  const [text, cls] = closed
+    ? ["Not renting right now", "bg-stone-800 text-white"]
+    : bikes === 0
+      ? ["No bikes right now", "bg-amber-100 text-amber-900"]
+      : docks === 0
+        ? ["Full: no open docks to return", "bg-amber-100 text-amber-900"]
+        : bikes <= 2
+          ? ["Only a few bikes left", "bg-stone-100 text-stone-700"]
+          : [null, ""];
+  if (!text) return null;
+  return <p className={`mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}>{text}</p>;
 }
 
 function DeltaChip({ change }: { change: LiveChange }) {

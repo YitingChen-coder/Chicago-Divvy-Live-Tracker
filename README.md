@@ -23,8 +23,9 @@ Divvy GBFS feed ──► Edge Function divvy-sync ──► Postgres ──► 
 | State | When | What you see |
 |---|---|---|
 | Loading | first queries haven't returned | skeleton cards, grey "Connecting…" |
-| Fresh | last successful run < ~105 s ago | green "Live" + "Checked Divvy 12s ago · next check in ~18s" |
+| Fresh | last successful run < ~105 s ago | green "Live" + "Divvy data from 40s ago · 31 stations changed citywide · next check in ~18s" |
 | Stale | no successful run for ~3 intervals, or Divvy's own feed > 5 min old | amber bar, cards dimmed, "Numbers may not match the dock" |
+| (per station) | no bikes, no docks, closed, or ≤ 2 bikes | a badge on the card: "No bikes right now", "Full: no open docks to return", "Not renting right now", "Only a few bikes left" |
 | Down | the most recent run failed | red bar with the error, time of last good data, "retries every 30s" |
 
 ## Personal follows and security
